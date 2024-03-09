@@ -18,6 +18,10 @@ const userSchema = new Schema({
         type: String,
         min: 6,
         required: true
+    },
+    profilePicUrl: {
+        type: String,
+        default: ""
     }
 });
 
