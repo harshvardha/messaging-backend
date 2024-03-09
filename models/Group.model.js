@@ -8,6 +8,13 @@ const groupSchema = new Schema({
             required: true,
             ref: "User"
         }
+    ],
+    admins: [
+        {
+            type: mongoose.Types.ObjectId,
+            required: true,
+            ref: "User"
+        }
     ]
 }, { timestamps: true });
 
