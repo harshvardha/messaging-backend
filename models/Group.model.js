@@ -2,6 +2,15 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const groupSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+        max: 50
+    },
+    profilePicUrl: {
+        type: String,
+        default: ""
+    },
     participants: [
         {
             type: mongoose.Types.ObjectId,
