@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const { StatusCodes } = require("http-status-codes");
 
 const Message = require("../models/Message.model");
+const CustomError = require("../errors/CustomError");
 
 const postCreateMessage = async (req, res, next) => {
     try {
@@ -26,9 +27,16 @@ const postCreateMessage = async (req, res, next) => {
 const deleteMessage = async (req, res, next) => {
     try {
         const userId = req.userId;
-        const message = await Message.exists({ senderId: userId });
+        const { messageId } = req.params;
+        if (messageId.length !== 64) {
+            throw new CustomError(StatusCodes.NOT_ACCEPTABLE, "Please provide correct message id.");
+        }
+        const message = await Message.exists({ _id: messageId });
         if (!message) {
             throw new CustomError(StatusCodes.NOT_FOUND, "message not found.");
+        }
+        if (message.senderId.toString() !== userId) {
+            throw new CustomError(StatusCodes.UNAUTHORIZED, "You can only delete your messages.");
         }
         await Message.deleteOne({
             senderId: userId
