@@ -20,6 +20,10 @@ const messageSchema = new Schema({
     seen: {
         type: Boolean,
         default: false
+    },
+    delivered: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
