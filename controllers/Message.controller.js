@@ -12,12 +12,12 @@ const postCreateMessage = async (req, res, next) => {
         }
         const { recieverId, description } = req.body;
         const userId = req.userId;
-        await Message.create({
+        const message = await Message.create({
             recieverId: recieverId,
             senderId: userId,
             description: description
         });
-        res.sendStatus(StatusCodes.CREATED);
+        res.status(StatusCodes.CREATED).json(message);
     } catch (error) {
         console.log(error);
         next(error);
