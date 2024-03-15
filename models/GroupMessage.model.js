@@ -16,6 +16,10 @@ const groupMessageSchema = new Schema({
         type: mongoose.Types.ObjectId,
         required: true,
         ref: "Group"
+    },
+    seen: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 
