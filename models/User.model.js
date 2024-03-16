@@ -22,7 +22,14 @@ const userSchema = new Schema({
     profilePicUrl: {
         type: String,
         default: ""
-    }
+    },
+    groups: [
+        {
+            type: mongoose.Types.ObjectId,
+            default: [],
+            ref: "Group"
+        }
+    ]
 });
 
 module.exports = mongoose.model("User", userSchema);
