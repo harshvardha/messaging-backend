@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const helmet = require("helmet");
 const morgan = require("morgan");
 const { Server } = require("socket.io");
-const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const connectDB = require("./database/DBConnect");
@@ -15,8 +14,28 @@ const messageRoutes = require("./routes/Message.routes");
 const groupMessageRoutes = require("./routes/GroupMessage.routes");
 const {
     userOnline,
-    userOffline
+    userOffline,
+    groupUserOnline,
+    groupUserOffline
 } = require("./socketUtils/onlineUsers");
+const {
+    createdMessageEventHandler,
+    recievedMessageEventHandler,
+    messageSeenEventHandler
+} = require("./eventHandlers/Message.eventHandlers");
+const {
+    createdGroupMessageEventHandler,
+    recievedGroupMessageEventHandler,
+    seenGroupMessageEventHandler
+} = require("./eventHandlers/GropuMessage.eventHandlers");
+const {
+    newParticipantEventHandler,
+    kickedParticipantEventHandler,
+    participantExitedEventHandler,
+    dismissedAdminEventHandler,
+    addAdminEventHandler
+} = require("./eventHandlers/Group.eventHandlers");
+
 
 connectDB();
 
@@ -59,13 +78,31 @@ io.on("connection", (socket) => {
             throw Error("User id not provided.");
         }
         userOnline(userId, socket);
+        groupUserOnline(userId, socket);
         socket.on("disconnect", (userId) => {
             if (!userId) {
                 throw Error("User id not provided.");
             }
             userOffline(userId);
+            groupUserOffline(userId, socket);
         });
-        // events related to one to one messaging remaining to get registered
+
+        // registering one to one messaging events
+        socket.on("created_message", data => createdMessageEventHandler(data));
+        socket.on("recieved_message", data => recievedMessageEventHandler(data));
+        socket.on("seen_message", data => messageSeenEventHandler(data));
+
+        // registering group events
+        socket.on("new_participant", data => newParticipantEventHandler(data, socket));
+        socket.on("kicked_participant", data => kickedParticipantEventHandler(data, socket));
+        socket.on("participantExited", data => participantExitedEventHandler(data, socket));
+        socket.on("dismissed_admin", data => dismissedAdminEventHandler(data, socket));
+        socket.on("add_admin", data => addAdminEventHandler(data, socket));
+
+        // registering groupMessage events
+        socket.on("created_groupMessage", data => createdGroupMessageEventHandler(data, socket));
+        socket.on("recieved_groupMessage", data => recievedGroupMessageEventHandler(data));
+        socket.on("seen_groupMessage", data => seenGroupMessageEventHandler(data));
     } catch (error) {
         console.log(error);
     }
