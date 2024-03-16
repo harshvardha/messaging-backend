@@ -17,6 +17,10 @@ const groupMessageSchema = new Schema({
         required: true,
         ref: "Group"
     },
+    delivered: {
+        type: Boolean,
+        default: false
+    },
     seen: {
         type: Boolean,
         default: false
