@@ -1,7 +1,7 @@
 const Message = require("../models/Message.model");
-const { userOnline } = require("../socketUtils/onlineUsers");
+const { getOnlineUserSocketInstance } = require("../socketUtils/onlineUsers");
 
-const createdMessageEventHandler = async (data, socket) => {
+const createdMessageEventHandler = async (data) => {
     try {
         const { recieverId, senderId } = data;
         if (!recieverId || !senderId) {
@@ -11,7 +11,7 @@ const createdMessageEventHandler = async (data, socket) => {
         if (!message) {
             throw Error("message does not exist.");
         }
-        const recieverSocketObj = userOnline[recieverId];
+        const recieverSocketObj = getOnlineUserSocketInstance(recieverId);
         if (!recieverSocketObj) {
             throw Error("User offline");
         }
@@ -27,13 +27,13 @@ const recievedMessageEventHandler = async (data) => {
         if (!delivered) {
             throw Error("Message not delivered.");
         }
-        const senderSocketObj = userOnline[senderId];
-        if (!senderSocketObj) {
-            throw Error("user is offline.");
-        }
         await Message.updateOne({ _id: data._id }, {
             $set: { delivered: true }
         });
+        const senderSocketObj = getOnlineUserSocketInstance(senderId);
+        if (!senderSocketObj) {
+            throw Error("user is offline.");
+        }
         senderSocketObj.emit("message_delivered", data);
     } catch (error) {
         console.log(error);
@@ -46,13 +46,13 @@ const messageSeenEventHandler = async (data) => {
         if (!delivered || !seen) {
             throw Error("Message is either not delivered or not seen.");
         }
-        const senderSocketObj = userOnline[senderId];
-        if (!senderSocketObj) {
-            throw Error("user is offline.");
-        }
         await Message.updateOne({ _id: data._id }, {
             $set: { seen: true }
         });
+        const senderSocketObj = getOnlineUserSocketInstance(senderId);
+        if (!senderSocketObj) {
+            throw Error("user is offline.");
+        }
         senderSocketObj.emit("message_seen", data);
     } catch (error) {
         console.log(error);
