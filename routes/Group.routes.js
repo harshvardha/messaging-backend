@@ -91,3 +91,5 @@ groupRouter.put(
     verifyAccessToken,
     putAddAdmin
 );
+
+module.exports = groupRouter;

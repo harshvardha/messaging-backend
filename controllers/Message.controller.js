@@ -39,6 +39,7 @@ const deleteMessage = async (req, res, next) => {
             throw new CustomError(StatusCodes.UNAUTHORIZED, "You can only delete your messages.");
         }
         await Message.deleteOne({
+            _id: messageId,
             senderId: userId
         });
         res.sendStatus(StatusCodes.OK);

@@ -56,7 +56,7 @@ const postLoginUser = async (req, res, next) => {
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: "24h" }
         );
-        res.status(StatusCodes.OK).json({ accessToken, username: userExist.username, profilePicUrl: userExist.profilePicUrl });
+        res.status(StatusCodes.OK).json({ accessToken, profilePicUrl: userExist.profilePicUrl });
     } catch (error) {
         console.log(error);
         next(error);

@@ -33,3 +33,5 @@ messageRouter.get(
     verifyAccessToken,
     getMessages
 );
+
+module.exports = messageRouter;

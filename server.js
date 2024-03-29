@@ -27,7 +27,7 @@ const {
     createdGroupMessageEventHandler,
     recievedGroupMessageEventHandler,
     seenGroupMessageEventHandler
-} = require("./eventHandlers/GropuMessage.eventHandlers");
+} = require("./eventHandlers/GroupMessage.eventHandlers");
 const {
     newParticipantEventHandler,
     kickedParticipantEventHandler,

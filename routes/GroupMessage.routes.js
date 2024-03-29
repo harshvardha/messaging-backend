@@ -25,3 +25,5 @@ groupMessageRouter.delete("/deleteMessage/:groupId/:groupMessageId", verifyAcces
 
 // route to get all messages
 groupMessageRouter.get("/allMessages?groupId", verifyAccessToken, getMessages);
+
+module.exports = groupMessageRouter;
