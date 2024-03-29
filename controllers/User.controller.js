@@ -23,7 +23,7 @@ const putEditProfile = async (req, res, next) => {
                 profilePicUrl: profilePicUrl
             }
         });
-        res.status(StatusCodes.OK).json({ username: userExist.username, profilePicUrl: userExist.profilePicUrl });
+        res.status(StatusCodes.OK).json({ profilePicUrl: userExist.profilePicUrl });
     } catch (error) {
         console.log(error);
         next(error);
@@ -56,7 +56,28 @@ const putEditAccountCredentials = async (req, res, next) => {
     }
 }
 
+const getUserAccountInformation = async (req, res, next) => {
+    try {
+        const userId = req.userId;
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new CustomError(StatusCodes.NOT_FOUND, "User not found.");
+        }
+        const { email, username, profilePicUrl } = user;
+        const userInfo = {
+            email,
+            username,
+            profilePicUrl
+        }
+        res.status(StatusCodes.OK).json(userInfo);
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+}
+
 module.exports = {
     putEditProfile,
-    putEditAccountCredentials
+    putEditAccountCredentials,
+    getUserAccountInformation
 }

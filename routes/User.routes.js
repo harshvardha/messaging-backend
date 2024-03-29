@@ -3,7 +3,8 @@ const { check } = require("express-validator");
 
 const {
     putEditProfile,
-    putEditAccountCredentials
+    putEditAccountCredentials,
+    getUserAccountInformation
 } = require("../controllers/User.controller");
 const verifyAccessToken = require("../middlewares/verifyAccessToken.middleware");
 
@@ -30,5 +31,8 @@ userRouter.put(
     verifyAccessToken,
     putEditAccountCredentials
 );
+
+// route for getting user account information
+userRouter.get("/accountInfo", verifyAccessToken, getUserAccountInformation);
 
 module.exports = userRouter;
