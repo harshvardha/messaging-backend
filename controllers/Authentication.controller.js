@@ -45,7 +45,7 @@ const postLoginUser = async (req, res, next) => {
         if (!userExist) {
             throw new CustomError(StatusCodes.NOT_FOUND, "user does not exist.");
         }
-        const correctPassword = await bcrypt.compare(password, userExist.password);
+        const correctPassword = bcrypt.compare(password, userExist.password);
         if (!correctPassword) {
             throw new CustomError(StatusCodes.NOT_ACCEPTABLE, "please provide correct login credentials.");
         }
@@ -56,7 +56,7 @@ const postLoginUser = async (req, res, next) => {
             process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: "24h" }
         );
-        res.status(StatusCodes.OK).json({ accessToken, profilePicUrl: userExist.profilePicUrl });
+        res.status(StatusCodes.OK).json({ accessToken, userId: userExist._id, profilePicUrl: userExist.profilePicUrl });
     } catch (error) {
         console.log(error);
         next(error);
