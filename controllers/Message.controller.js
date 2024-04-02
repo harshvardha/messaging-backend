@@ -13,10 +13,11 @@ const postCreateMessage = async (req, res, next) => {
         const { recieverId, description } = req.body;
         const userId = req.userId;
         const message = await Message.create({
-            recieverId: recieverId,
-            senderId: userId,
+            reciever: recieverId,
+            sender: userId,
             description: description
         });
+        message.populate("reciever");
         res.status(StatusCodes.CREATED).json(message);
     } catch (error) {
         console.log(error);
@@ -51,13 +52,16 @@ const deleteMessage = async (req, res, next) => {
 
 const getMessages = async (req, res, next) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            throw new CustomError(StatusCodes.NOT_ACCEPTABLE, "Please provide correct reciever id.");
-        }
-        const { recieverId } = req.body;
+        const { recieverId } = req.params;
         const userId = req.userId;
-        const messages = await Message.find({ recieverId: recieverId, senderId: userId });
+
+        // messages1 includes messages where senderId = userId and recieverId = recieverId
+        const messages1 = await Message.find({ reciever: recieverId, sender: userId });
+
+        // messages2 includes messages where senderId = recieverId and recieverId = senderId
+        const messages2 = await Message.find({ reciever: userId, sender: recieverId });
+
+        const messages = messages1.concat(messages2);
         if (!messages) {
             throw new CustomError(StatusCodes.NOT_FOUND, "messages not found.");
         }
