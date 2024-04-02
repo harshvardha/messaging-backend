@@ -23,6 +23,13 @@ const userSchema = new Schema({
         type: String,
         default: ""
     },
+    connectedTo: [
+        {
+            type: mongoose.Types.ObjectId,
+            default: [],
+            ref: "User"
+        }
+    ],
     groups: [
         {
             type: mongoose.Types.ObjectId,
@@ -30,6 +37,6 @@ const userSchema = new Schema({
             ref: "Group"
         }
     ]
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("User", userSchema);
