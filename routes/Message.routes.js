@@ -14,7 +14,7 @@ const messageRouter = Router();
 messageRouter.post(
     "/createMessage",
     [
-        check("recieverId").isLength({ min: 64, max: 64 }).isHexadecimal(),
+        check("recieverId").isLength({ min: 24, max: 24 }).isHexadecimal(),
         check("description").isLength({ min: 1, max: 500 })
     ],
     verifyAccessToken,
@@ -26,10 +26,7 @@ messageRouter.delete("/deleteMessage/:messageId", verifyAccessToken, deleteMessa
 
 // route to get all messages
 messageRouter.get(
-    "/messages",
-    [
-        check("recieverId").isLength({ min: 64, max: 64 }).isHexadecimal()
-    ],
+    "/messages/:recieverId",
     verifyAccessToken,
     getMessages
 );
