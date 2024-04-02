@@ -7,12 +7,12 @@ const groupMessageSchema = new Schema({
         max: 500,
         required: true
     },
-    senderId: {
+    sender: {
         type: mongoose.Types.ObjectId,
         required: true,
         ref: "User"
     },
-    groupId: {
+    group: {
         type: mongoose.Types.ObjectId,
         required: true,
         ref: "Group"
