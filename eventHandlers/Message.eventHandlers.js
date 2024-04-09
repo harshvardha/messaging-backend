@@ -3,15 +3,15 @@ const { getOnlineUserSocketInstance } = require("../socketUtils/onlineUsers");
 
 const createdMessageEventHandler = async (data) => {
     try {
-        const { recieverId, senderId } = data;
-        if (!recieverId || !senderId) {
-            throw new Error("recieverId or senderId not provided.");
+        const { messageId } = data;
+        if (!messageId) {
+            throw new Error("messageId not provided.");
         }
-        const message = await Message.findOne({ senderId: senderId, recieverId: recieverId });
+        const message = await Message.findById(messageId).populate("sender");
         if (!message) {
             throw Error("message does not exist.");
         }
-        const recieverSocketObj = getOnlineUserSocketInstance(recieverId);
+        const recieverSocketObj = getOnlineUserSocketInstance(message.reciever);
         if (!recieverSocketObj) {
             throw Error("User offline");
         }
