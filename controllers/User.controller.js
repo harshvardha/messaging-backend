@@ -88,44 +88,74 @@ const getUserConnections = async (req, res, next) => {
         const connectedToUsers = user.connectedTo;
         const groups = user.groups;
         const messages = [];
+        let messages1;
+        let messages2;
 
         // first we will take one to one chats then group
-        connectedToUsers.forEach(async id => {
-            let messages1;
-            let messages2;
+        for (const id of connectedToUsers) {
+
+            // getting the count of all undelivered messages. reciever = userId and sender = id
+            const undeliveredMessages = await Message.find({ sender: id, reciever: userId, seen: false });
 
             // senderId = userId and recieverId = id
-            messages1 = await Message.find({ senderId: userId, recieverId: id }).sort({ createdAt: -1 }).populate("recieverId");
+            messages1 = await Message.find({ sender: userId, reciever: id }).sort({ createdAt: -1 }).populate("reciever");
 
             // senderId = id and recieverId = userId
-            messages2 = await Message.find({ senderId: id, recieverId: userId }).sort({ createdAt: -1 }).populate("senderId");
+            messages2 = await Message.find({ sender: id, reciever: userId }).sort({ createdAt: -1 }).populate("sender");
 
             // comparing the index: 0 value to get the most recent message
-            const message = messages1[0].createdAt > messages2[0].createdAt ? {
-                userId: id,
-                profilePicUrl: messages1[0].reciever.profilePicUrl,
-                username: messages1[0].reciever.username,
-                description: messages1[0].description,
-                seen: messages1[0].seen,
-                delivered: messages1[0].delivered,
-                createdAt: messages1[0].createdAt
-            } : {
-                userId: id,
-                profilePicUrl: messages2[0].sender.profilePicUrl,
-                username: messages2[0].sender.username,
-                description: messages2[0].description,
-                seen: messages2[0].seen,
-                delivered: messages2[0].delivered,
-                createdAt: messages1[0].createdAt
-            };
+            let message;
+            if (messages1.length > 0 && messages2.length > 0) {
+                message = messages1[0].createdAt > messages2[0].createdAt ? {
+                    userId: id,
+                    profilePicUrl: messages1[0].reciever.profilePicUrl,
+                    username: messages1[0].reciever.username,
+                    description: messages1[0].description,
+                    seen: messages1[0].seen,
+                    undeliveredMessagesCount: undeliveredMessages.length,
+                    delivered: messages1[0].delivered,
+                    createdAt: messages1[0].createdAt
+                } : {
+                    userId: id,
+                    profilePicUrl: messages2[0].sender.profilePicUrl,
+                    username: messages2[0].sender.username,
+                    description: messages2[0].description,
+                    seen: messages2[0].seen,
+                    undeliveredMessagesCount: undeliveredMessages.length,
+                    delivered: messages2[0].delivered,
+                    createdAt: messages1[0].createdAt
+                };
+            } else if (messages1.length > 0) {
+                message = {
+                    userId: id,
+                    profilePicUrl: messages1[0].reciever.profilePicUrl,
+                    username: messages1[0].reciever.username,
+                    description: messages1[0].description,
+                    seen: messages1[0].seen,
+                    undeliveredMessagesCount: undeliveredMessages.length,
+                    delivered: messages1[0].delivered,
+                    createdAt: messages1[0].createdAt
+                };
+            } else {
+                message = {
+                    userId: id,
+                    profilePicUrl: messages2[0].sender.profilePicUrl,
+                    username: messages2[0].sender.username,
+                    description: messages2[0].description,
+                    seen: messages2[0].seen,
+                    undeliveredMessagesCount: undeliveredMessages.length,
+                    delivered: messages2[0].delivered,
+                    createdAt: messages2[0].createdAt
+                };
+            }
             messages.push(message);
-        });
+        }
 
         // now taking group chats
-        groups.forEach(async id => {
+        for (const id of groups) {
             const groupMessages = await GroupMessage.find({ groupId: id }).sort({ createdAt: -1 }).populate("group");
             messages.push(groupMessages[0]);
-        });
+        }
         res.status(StatusCodes.OK).json(messages);
     } catch (error) {
         console.log(error);
