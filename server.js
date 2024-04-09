@@ -73,19 +73,24 @@ app.use((error, req, res, next) => {
 
 io.on("connection", (socket) => {
     try {
-        const { userId } = socket.data;
+        const { userId } = socket.handshake.auth;
         if (!userId) {
             throw Error("User id not provided.");
         }
         userOnline(userId, socket);
         groupUserOnline(userId, socket);
-        socket.on("disconnect", (userId) => {
+        socket.on("disconnect", () => {
+            console.log("user is offline,")
+        });
+        socket.on("user_offline", (data) => {
+            const userId = data.userId;
+            console.log(`user id: ${userId}`);
             if (!userId) {
                 throw Error("User id not provided.");
             }
             userOffline(userId);
             groupUserOffline(userId, socket);
-        });
+        })
 
         // registering one to one messaging events
         socket.on("created_message", data => createdMessageEventHandler(data));
