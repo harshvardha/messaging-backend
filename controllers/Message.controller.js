@@ -2,6 +2,7 @@ const { validationResult } = require("express-validator");
 const { StatusCodes } = require("http-status-codes");
 
 const Message = require("../models/Message.model");
+const User = require("../models/User.model");
 const CustomError = require("../errors/CustomError");
 
 const postCreateMessage = async (req, res, next) => {
@@ -17,7 +18,15 @@ const postCreateMessage = async (req, res, next) => {
             sender: userId,
             description: description
         });
-        message.populate("reciever");
+        const sender = await User.findById(userId);
+        const reciever = await User.findById(recieverId);
+        if (!sender.connectedTo.includes(recieverId)) {
+            await sender.updateOne({ $push: { connectedTo: recieverId } });
+        }
+        if (!reciever.connectedTo.includes(userId)) {
+            await reciever.updateOne({ $push: { connectedTo: userId } });
+        }
+        await message.populate("reciever");
         res.status(StatusCodes.CREATED).json(message);
     } catch (error) {
         console.log(error);
@@ -62,6 +71,8 @@ const getMessages = async (req, res, next) => {
         const messages2 = await Message.find({ reciever: userId, sender: recieverId });
 
         const messages = messages1.concat(messages2);
+        messages.sort((message1, message2) => message1.createdAt - message2.createdAt);
+
         if (!messages) {
             throw new CustomError(StatusCodes.NOT_FOUND, "messages not found.");
         }
