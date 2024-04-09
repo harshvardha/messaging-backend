@@ -26,6 +26,7 @@ const userOffline = (userId) => {
             throw new Error("User already offline.");
         }
         delete usersOnline[userId];
+        console.log(`users online: ${usersOnline[userId]}`);
     } catch (error) {
         console.log(error);
     }
@@ -92,8 +93,8 @@ const getNoOfOnlineUsersInGroup = (groupId) => {
 }
 
 const getOnlineUserSocketInstance = (userId) => {
-    if (userOnline.hasOwnProperty(userId))
-        return userOnline[userId];
+    if (usersOnline.hasOwnProperty(userId))
+        return usersOnline[userId];
     else
         return false;
 }
